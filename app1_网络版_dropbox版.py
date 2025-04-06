@@ -18,6 +18,7 @@ except locale.Error:
 
 # ============ 数据加载函数 ============
 
+
 @st.cache_data
 def load_data():
     url = "https://www.dropbox.com/scl/fi/qzlknx8jkios4g6b5oz4q/ad_data.xlsx?rlkey=sx84p1ckfscu021hw3rfqck5d&st=7h850cfb&dl=1"
@@ -25,13 +26,11 @@ def load_data():
     if response.status_code != 200:
         raise ValueError("无法下载数据文件，请检查 Dropbox 链接是否正确")
     data = BytesIO(response.content)
-    df = pd.read_excel(
-        data,
-        sheet_name="源",
-        converters={"日期": lambda x: pd.to_datetime(x, unit='d', origin='1899-12-30', errors='coerce')}
-    )
+    df = pd.read_excel(data, sheet_name="源")
+    df["日期"] = pd.to_datetime(df["日期"], errors='coerce')
     df = df.dropna(subset=["日期"])
     return df
+
 
 df = load_data()
 
