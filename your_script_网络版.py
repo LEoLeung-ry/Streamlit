@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import requests
+
 
 # ============== 页面基础配置 ==============
 st.set_page_config(layout="wide", page_title="产品月度 & 日度数据面板")
@@ -12,6 +14,7 @@ def load_data():
     import requests
 from io import BytesIO
 
+@st.cache_data
 def load_data():
     url = "https://drive.google.com/uc?export=download&id=1gz9qZdjeMZN_I-pc0u7XhD1kGAr6nZmx"
     response = requests.get(url)
@@ -22,6 +25,7 @@ def load_data():
     df["日期"] = pd.to_datetime(df["日期"], errors="coerce")
     df = df.dropna(subset=["日期"])
     return df
+
 
     df["日期"] = pd.to_datetime(df["日期"], errors="coerce")
     df = df.dropna(subset=["日期"])
