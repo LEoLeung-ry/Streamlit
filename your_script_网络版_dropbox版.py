@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -37,10 +38,7 @@ end_date = pd.to_datetime(selected_date[1])
 filtered_df = df[(df["日期"] >= start_date) & (df["日期"] <= end_date)].copy()
 
 # ============== 搜索框: SKU/品名/标题 ==============
-search_keyword = st.text_input(
-    "🔍 输入关键词（支持 SKU / 品名 / 标题 部分匹配）",
-    value=""
-)
+search_keyword = st.text_input("🔍 输入关键词（支持 SKU / 品名 / 标题 部分匹配）", value="")
 
 if search_keyword.strip():
     keyword = search_keyword.strip().lower()
@@ -86,9 +84,9 @@ daily_cols = [
 for col in daily_cols:
     filtered_df[col] = pd.to_numeric(filtered_df[col], errors="coerce").fillna(0)
 
-filtered_df["\u8bbf\u5ba2\u8f6c\u5316\u7387"] = np.where(filtered_df["Sessions-Total"] > 0, filtered_df["\u9500\u91cf"] / filtered_df["Sessions-Total"], np.nan)
-filtered_df["\u5e7f\u544aCR"] = np.where(filtered_df["\u70b9\u51fb"] > 0, filtered_df["\u5e7f\u544a\u8ba2\u5355\u91cf"] / filtered_df["\u70b9\u51fb"], np.nan)
-filtered_df["\u5e7f\u544a\u82b1\u8d39"] = filtered_df["\u70b9\u51fb"] * filtered_df["\u5e7f\u544a\u8ba2\u5355\u91cf"]
+filtered_df["访客转化率"] = np.where(filtered_df["Sessions-Total"] > 0, filtered_df["销量"] / filtered_df["Sessions-Total"], np.nan)
+filtered_df["广告CR"] = np.where(filtered_df["点击"] > 0, filtered_df["广告订单量"] / filtered_df["点击"], np.nan)
+filtered_df["广告花费"] = filtered_df["点击"] * filtered_df["广告订单量"]
 
 # 最终显示表
 final_df = filtered_df[[
@@ -102,11 +100,11 @@ final_df.rename(columns={
     "广告销售额": "广告销售额", "广告CR": "CR"
 }, inplace=True)
 
-final_df["\u65e5\u671f"] = pd.to_datetime(final_df["\u65e5\u671f"]).dt.strftime("%Y-%m-%d")
-final_df.sort_values("\u65e5\u671f", inplace=True)
+final_df["日期"] = pd.to_datetime(final_df["日期"]).dt.strftime("%Y-%m-%d")
+final_df.sort_values("日期", inplace=True)
 
 st.dataframe(final_df, use_container_width=True)
 
 # ============== 下载 ==============
 csv = final_df.to_csv(index=False, encoding="utf-8-sig")
-st.download_button("\u4e0b\u8f7d\u5f53\u524d\u65e5\u5ea6\u660e\u7ec6 (CSV)", csv, file_name="\u65e5\u5ea6\u660e\u7ec6.csv", mime="text/csv")
+st.download_button("下载当前日度明细 (CSV)", csv, file_name="日度明细.csv", mime="text/csv")
