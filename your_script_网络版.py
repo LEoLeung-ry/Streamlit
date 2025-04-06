@@ -9,7 +9,20 @@ st.set_page_config(layout="wide", page_title="产品月度 & 日度数据面板"
 # ============== 数据读取函数 ==============
 @st.cache_data
 def load_data():
-    df = pd.read_excel("https://drive.google.com/uc?export=download&id=1gz9qZdjeMZN_I-pc0u7XhD1kGAr6nZmx", sheet_name="源")
+    import requests
+from io import BytesIO
+
+def load_data():
+    url = "https://drive.google.com/uc?export=download&id=1gz9qZdjeMZN_I-pc0u7XhD1kGAr6nZmx"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise ValueError("无法下载数据文件，请检查链接是否正确")
+    data = BytesIO(response.content)
+    df = pd.read_excel(data, sheet_name="源")
+    df["日期"] = pd.to_datetime(df["日期"], errors="coerce")
+    df = df.dropna(subset=["日期"])
+    return df
+
     df["日期"] = pd.to_datetime(df["日期"], errors="coerce")
     df = df.dropna(subset=["日期"])
     return df
